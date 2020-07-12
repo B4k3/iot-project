@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Dashboard</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin-2.min.css" rel="stylesheet">
+  <link href="css/mystyle.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+          <div class="" style="display: flex; align-items: center;">
+            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+          </div>
+          <!-- Topbar Navbar -->
+          <ul class="navbar-nav ml-auto">
+            <div class="topbar-divider d-none d-sm-block"></div>
+
+            <!-- Nav Item - User Information -->
+            <!--<li class="nav-item dropdown no-arrow">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="mr-2 d-none d-lg-inline text-gray-600 small">$userid</span>
+                <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
+              </a>-->
+              <!-- Dropdown - User Information -->
+              <!--<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                  <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Logout
+                </a>
+              </div>
+            </li>-->
+
+          </ul>
+
+        </nav>
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          
+          
+          <!-- Content Row -->
+          <div class="row" data-bind="foreach:bins">
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card shadow h-100 " data-bind="class: 'border-left-'+type()">
+                <h5 class="card-header text-uppercase" data-bind="text:id, class:'text-'+type()"></h5>
+                <img class="card-img-top"  alt="Card image cap" style="max-width: 100px; height: auto; align-self: center;" data-bind="attr: {src: 'img/'+type()+'.png'}"> 
+                <!-- ko if:locked() == 1 -->
+                <div class="card-img-overlay">
+                  <h5 class="card-title">Locked</h5>
+                  <p class="card-text"><i class="fas fa-lock fa-4x "></i></p>
+                  <a class="btn btn-success btn-icon-split btn-sm" data-bind="click:$parent.unlockBin">
+                    <span class="icon text-white-50">
+                      <i class="fas fa-unlock"></i>
+                    </span>
+                    <span class="text">Unlock</span>
+                  </a>
+                </div>
+                <!-- /ko -->
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold mb-1">
+                        <span class="text-uppercase " data-bind="class:'text-'+type()">Max:</span>&nbsp;<span data-bind="text:capacity"></span><span>Kg</span>
+                        &nbsp;&nbsp;
+                        <span class="text-uppercase" data-bind="class:'text-'+type()">Curr:</span>&nbsp;<span data-bind="text:status"></span><span>Kg</span>
+                      </div>
+                      <div class="row no-gutters align-items-center">
+                        <div class="col-auto">
+                          <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800"><span data-bind="text:status"></span>%</div>
+                        </div>
+                        <div class="col">
+                          <div class="progress progress-sm mr-2">
+                            <div class="progress-bar bg-info" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" data-bind="style: {width: ''+status()+'%'}"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-trash fa-2x " data-bind="css:{'status-full': status() > 99, 'status-normal': status() < 100}"></i>
+                    </div>
+                  </div>
+                </div>
+                 <!-- ko ifnot:locked() == 1 -->
+                <div class="card-footer text-muted" style="display: flex;">
+                  <a href="#" class="btn btn-primary btn-icon-split btn-sm" data-bind="click:$parent.emptyBin">
+                    <span class="icon text-white-50">
+                      <i class="fas fa-recycle"></i>
+                    </span>
+                    <span class="text">Empty</span>
+                  </a>
+
+                  <a href="#" class="btn btn-danger btn-icon-split btn-sm pull-right" data-bind="click:$parent.lockBin">
+                    <span class="icon text-white-50">
+                      <i class="fas fa-lock"></i>
+                    </span>
+                    <span class="text">Lock</span>
+                  </a>
+                </div>
+                <!-- /ko -->
+              </div>
+            </div>
+
+           
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright &copy; Your Website 2020</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Logout Modal-->
+  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+          <a class="btn btn-primary" href="login.html">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="js/sb-admin-2.min.js"></script>
+
+
+  <!-- knockout js -->
+  <script type='text/javascript' src="js/knockout-3.5.1.js"></script>
+  <script type='text/javascript'>
+      var initialData = [
+          { id: "Giallo", type: "paper",   capacity: 120, percentage: 50, status: 50, locked: 1},
+          { id: "Verde",  type: "plastic", capacity: 120, percentage: 20, status: 20, locked: 0},
+          { id: "Rosso",  type: "glass",   capacity: 120, percentage: 100,status: 100, locked: 0},
+          { id: "Blu",    type: "organic", capacity: 120, percentage: 90, status: 90, locked: 1},
+          { id: "Giallo1",type: "paper",   capacity: 120, percentage: 50, status: 50, locked: 1},
+          { id: "Verde1", type: "plastic", capacity: 120, percentage: 20, status: 20, locked: 0},
+          { id: "Rosso1", type: "glass",   capacity: 120, percentage: 75, status: 75, locked: 0},
+          { id: "Blu1",   type: "organic", capacity: 120, percentage: 90, status: 90, locked: 1},
+          { id: "Giallo2",type: "paper",   capacity: 120, percentage: 100,status: 100, locked: 0},
+          { id: "Verde2", type: "plastic", capacity: 120, percentage: 20, status: 20, locked: 0},
+          { id: "Rosso2", type: "glass",   capacity: 120, percentage: 100,status: 100, locked: 1},
+          { id: "Blu2",   type: "organic", capacity: 120, percentage: 9,  status: 9,  locked: 0}
+      ];
+
+      function Bin(){
+        this.type = ko.observable();
+        this.id = ko.observable();
+        this.status = ko.observable();
+        this.locked = ko.observable();
+        this.capacity = ko.observable();
+        this.percentage = ko.observable();
+      }
+
+      var myViewModel = function(){
+        var self = this;
+        self.bins = ko.observableArray();
+
+        
+
+        self.addbin = function(bin){
+          t = new Bin();
+          t.id(bin.id);
+          t.type(bin.type);
+          t.capacity(bin.capacity);
+          t.status(bin.status);
+          t.locked(bin.locked);
+          t.percentage(bin.percentage);
+          self.bins.push(t);
+        } 
+
+        $.getJSON("/bins",function(getdata,status){
+          alert("Data: " + getdata);
+          ko.utils.arrayMap(getdata, function(data) {
+            self.addbin(data);
+          });
+        });
+        
+
+        self.updateBins = function(){
+
+        }
+
+        self.unlockBin = function(bin){
+          bin.locked(0);
+        }
+
+        self.lockBin = function(bin){
+          bin.locked(1);
+        }
+
+        self.emptyBin = function(bin){
+          bin.status(0);
+        }
+              
+      }
+      ko.applyBindings(new myViewModel(initialData));
+
+  </script>
+
+</body>
+
+</html>
