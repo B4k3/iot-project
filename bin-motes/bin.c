@@ -40,21 +40,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "contiki.h"
 #include "contiki-net.h"
 #include "coap-engine.h"
 #include "coap-blocking-api.h"
 #include "node-id.h"
+#include "dev/button-hal.h"
+#include "dev/button-sensor.h"
 
 #include "bin_t.h"
+#include "bin_config.h"
 
-/*CLOUD APPLICATION ADDR + SERVICES*/
-
-#define SERVER_EP "coap://[fd00::1]:5683"
-//#define SERVER_EP "coap://127.0.0.1:5683"
-char *service_url = "/register";
-
-#define TOGGLE_INTERVAL 10
+/*COAP SERVER*/
+extern coap_resource_t res_leds;
+extern coap_resource_t res_action;
 
 /*GLOBAL STRUCTURES*/
 bin_t bin;
@@ -77,6 +77,7 @@ void client_chunk_handler(coap_message_t *response)
 /*---------------------------------------------------------------------------*/
 //PROCESS(hello_world_process, "Hello world process");
 PROCESS(startup_process, "Startup process");
+PROCESS(server_process, "server process");
 //server status process
 //server locked
 //button process
@@ -109,26 +110,27 @@ static struct etimer et;
 PROCESS_THREAD(startup_process, ev, data)
 {
   static coap_endpoint_t server_ep;
-  static coap_message_t request[1];
 
   PROCESS_BEGIN();
 
-  PROCESS_PAUSE();
+  static coap_message_t request[1];
 
-  //char buff[40];
+  static char msg[40];
 
-  /* Initializing Bin data-structure */
-  printf("Initializing Bin!\n");
+// ---------------------------- BIN INITIALIZATION ----------------------------
+  
   bin.id = node_id;
-  printf("bin_id:%d\n",bin.id);
   bin.capacity = standard_capacity[rand() % 4];
-  printf("bin_capacity:%d\n",bin.capacity);
   bin.type = rand() % 4;
-  printf("bin_type:%d\n",bin.type);
   bin.locked = 0;
   bin.status = 0;
 
+  printf("Initializing Bin!\nbin_id:%d\nbin_capacity:%d\nbin_type:%d\n",bin.id,bin.capacity,bin.type);
+
+// ---------------------------- BIN REGISTRATION ----------------------------
+
   /* Register Bin to the cloud application */
+
   coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 
   etimer_set(&et, TOGGLE_INTERVAL * CLOCK_SECOND);
@@ -136,34 +138,49 @@ PROCESS_THREAD(startup_process, ev, data)
   while (1)
   {
       PROCESS_YIELD();
-      if(etimer_expired(&et)) {
-        printf("--Toggle timer--\n");
-        coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
-        coap_set_header_uri_path(request, service_url);
 
-        const char msg[] = "Bin1";
+      if(etimer_expired(&et)) {
+
+        coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
+        coap_set_header_uri_path(request, service_urls[0]);
+
+        //const char msg[] = "Bin1!";
+        sprintf(msg,"{\"id\":%d,\"type\":%d,\"capacity\":%d}", bin.id, bin.type, bin.capacity);
 
         coap_set_payload(request, (uint8_t *)msg, sizeof(msg) - 1);
+        
+        printf(">> Sending registration request!\n");
 
-        //COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
+        COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
 
-        printf("\n--Done--\n");
+        printf(">> Registered!\n");
 
-        etimer_reset(&et);
+        break;
+
+        //etimer_reset(&et);
       }
 
   }
-  
 
-  //coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
-  //coap_set_header_uri_path(request, service_url);
-//
-  ////sprintf(buff,"{\"id\":%d,\"type\":%d,\"capacity\":%d}", bin.id, bin.type, bin.capacity);
-  //const char buff[] = "Bin1";
-  //coap_set_payload(request, (uint8_t *)buff, sizeof(buff) - 1);
-  //printf("sending registration msg!\n");
-  //COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
+  process_start(&server_process, NULL);
 
-  //start the server process
+  PROCESS_END();
+}
+
+PROCESS_THREAD(server_process, ev, data)
+{
+  PROCESS_BEGIN();
+
+  PROCESS_PAUSE();
+
+  printf("Starting Erbium Example Server\n");
+
+  coap_activate_resource(&res_leds, "locked");
+  coap_activate_resource(&res_action, "action");
+
+  while(1) {
+    PROCESS_WAIT_EVENT();
+
+  }
   PROCESS_END();
 }

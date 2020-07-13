@@ -1,3 +1,6 @@
+#ifndef BINT
+#define BINT
+
 typedef struct 
 {
     int id;
@@ -7,4 +10,4 @@ typedef struct
     int capacity;
 } bin_t;
 
-static int standard_capacity[4] = {50,100,150,200};
+#endif
