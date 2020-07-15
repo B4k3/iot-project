@@ -114,7 +114,7 @@ PROCESS_THREAD(startup_process, ev, data)
 
   init = 0;
 
-  printf(">> Initializing Bin!\n[bin_id: %d]\n[bin_capacity: %d]\n[bin_type: (%d)%s]\n",bin.id,bin.capacity,bin.type,type[bin.type]);
+  printf(">> Initializing Bin!\n[bin_id: %d]\n[bin_capacity: %d]\n[bin_type: (%d) %s]\n",bin.id,bin.capacity,bin.type,type[bin.type]);
 
 // ---------------------------- BIN REGISTRATION ----------------------------
 
@@ -171,7 +171,7 @@ PROCESS_THREAD(server_process, ev, data)
 
   coap_activate_resource(&res_lock, "lock");
   coap_activate_resource(&res_unlock, "unlock");
-  coap_activate_resource(&res_empty, "action");
+  coap_activate_resource(&res_empty, "empty");
   coap_activate_resource(&res_status, "status");
 
   while(1) {
@@ -183,12 +183,12 @@ PROCESS_THREAD(server_process, ev, data)
 
 PROCESS_THREAD(btn_process, ev, data)
 {
-  button_hal_button_t *btn;
+  //button_hal_button_t *btn;
   int input;
   PROCESS_BEGIN();
   printf(">> Bin Active!\n");
 
-  btn = button_hal_get_by_index(0); 
+  //btn = button_hal_get_by_index(0); 
 
   while(1) { 
     PROCESS_YIELD();

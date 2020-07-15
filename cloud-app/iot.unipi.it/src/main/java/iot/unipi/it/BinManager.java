@@ -30,16 +30,26 @@ public class BinManager {
 			System.out.print("Bin already added!\n");
 	}
 	
-	public void rmBin () {
-		
+	public void emptyBin (int id) {
+		this.myBins.forEach(c -> {
+			if(Objects.equals(c.getBinId(), Integer.toString(id))) {
+				c.empty();
+			}
+		});
 	}
 	
-	public void getBin () {
-		
+	public void lockBin (int id) {
+		this.myBins.forEach(c -> {
+			if(Objects.equals(c.getBinId(), Integer.toString(id)))
+				c.lock();
+		});
 	}
 	
-	public void updateBin () {
-		
+	public void unlockBin (int id) {
+		this.myBins.forEach(c -> {
+			if(Objects.equals(c.getBinId(), Integer.toString(id)))
+				c.unlock();
+		});
 	}
 	
 	public String getBinJsonStatus () {

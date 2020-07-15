@@ -261,15 +261,48 @@
         }
 
         self.unlockBin = function(bin){
-          bin.locked(0);
+          $.ajax({
+            type: 'POST',
+            url: '/unlockbin',
+            data: JSON.stringify({id:bin.id()}),
+            success: function(data) { 
+              console.log('data: ' + data);
+              if(data.success == "ok")
+                    bin.locked(0); 
+            },
+            contentType: "application/json",
+            dataType: 'json'
+          });
         }
 
         self.lockBin = function(bin){
-          bin.locked(1);
+          $.ajax({
+            type: 'POST',
+            url: '/lockbin',
+            data: JSON.stringify({id:bin.id()}),
+            success: function(data) { 
+              console.log('data: ' + data);
+              if(data.success == "ok")
+                    bin.locked(1); 
+            },
+            contentType: "application/json",
+            dataType: 'json'
+          });
         }
 
         self.emptyBin = function(bin){
-          bin.status(0);
+          $.ajax({
+            type: 'POST',
+            url: '/emptybin',
+            data: JSON.stringify({id:bin.id()}),
+            success: function(data) { 
+              console.log('data: ' + data);
+              if(data.success == "ok")
+                    bin.status(0); 
+            },
+            contentType: "application/json",
+            dataType: 'json'
+          });
         }
         
         setInterval(self.updateBins, 10000);

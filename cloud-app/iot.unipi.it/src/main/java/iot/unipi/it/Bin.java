@@ -6,6 +6,7 @@ import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapHandler;
 import org.eclipse.californium.core.CoapObserveRelation;
 import org.eclipse.californium.core.CoapResponse;
+import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -17,6 +18,7 @@ import spark.utils.IOUtils;
 
 
 public class Bin {
+	InetAddress addr;
 	CoapClient bin_node;
 	CoapObserveRelation relation;
 	
@@ -90,14 +92,69 @@ public class Bin {
 		this.percentage = 0;
 		this.bin_node = new CoapClient("coap://["+ src.getHostAddress().toString() +"]/status");
 		this.relation = bin_node.observe(new bin_coap_handler(this));
+		this.addr = src;
 		System.out.print("Bin "+this.id+" added!\n addr:" + src.getHostAddress().toString() +"\n");
 	}
 	
 	public void empty () {
+		CoapClient empty = new CoapClient("coap://["+ this.addr.getHostAddress().toString() +"]/lock");
+		CoapResponse res = empty.post("", MediaTypeRegistry.APPLICATION_JSON);
+		
+		JSONObject response;
+		try {
+			
+			response = (JSONObject) JSONValue.parseWithException(new String(res.getPayload()));
+		}
+		catch (ParseException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+		System.out.print("3d!\n");
+		if(response.get("result").toString().equals("OK")) {
+			this.status = 0;
+			this.percentage = 0;
+			System.out.print("4!\n");
+		}
+	}
+	
+	public void lock () {
+		CoapClient lock = new CoapClient("coap://["+ this.addr.getHostAddress().toString() +"]/lock");
+		CoapResponse res = lock.post("", MediaTypeRegistry.APPLICATION_JSON);
+		
+		JSONObject response;
+		try {
+			
+			response = (JSONObject) JSONValue.parseWithException(new String(res.getPayload()));
+		}
+		catch (ParseException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+		if(response.get("result").toString().equals("OK")) {
+			this.locked = 1;
+		}
 		
 	}
 	
-	public void updatebin () {
+	public void unlock () {
+		CoapClient unlock = new CoapClient("coap://["+ this.addr.getHostAddress().toString() +"]/unlock");
+		CoapResponse res = unlock.post("", MediaTypeRegistry.APPLICATION_JSON);
+		
+		JSONObject response;
+		try {
+			
+			response = (JSONObject) JSONValue.parseWithException(new String(res.getPayload()));
+		}
+		catch (ParseException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+		if(response.get("result").toString().equals("OK")) {
+			this.locked = 0;
+		}
 		
 	}
 	
