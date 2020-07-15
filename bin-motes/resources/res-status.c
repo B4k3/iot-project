@@ -67,7 +67,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
   coap_get_header_accept(request, &accept);
  if(accept == -1 || accept == APPLICATION_JSON) {
     coap_set_header_content_format(response, APPLICATION_JSON);
-    snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{'status':%d, 'locked':%d}", status, locked);
+    snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"status\":%d, \"locked\":%d}", status, locked);
 
     coap_set_payload(response, buffer, strlen((char *)buffer));
   } else {

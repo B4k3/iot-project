@@ -48,6 +48,7 @@
 #include "node-id.h"
 #include "dev/button-hal.h"
 #include "dev/button-sensor.h"
+#include "dev/leds.h"
 
 #include "bin_t.h"
 #include "bin_config.h"
@@ -59,6 +60,7 @@ extern coap_resource_t res_empty;
 extern coap_resource_t res_status;
 /*GLOBAL STRUCTURES*/
 bin_t bin;
+int init;
 
 /*UTILITY FUNCTIONS*/
 void client_chunk_handler(coap_message_t *response)
@@ -66,9 +68,15 @@ void client_chunk_handler(coap_message_t *response)
   const uint8_t *chunk;
 
   if(response == NULL) {
-    puts("Request timed out");
+    puts(">> Request timed out\n");
+    init = 0;
     return;
   }
+  else {
+    init =1;
+    return;
+  }
+
 
   int len = coap_get_payload(response, &chunk);
 
@@ -104,7 +112,9 @@ PROCESS_THREAD(startup_process, ev, data)
   bin.locked = 0;
   bin.status = 0;
 
-  printf(">> Initializing Bin!\n[bin_id: %d]\n[bin_capacity: %d]\n[bin_type: %d]\n",bin.id,bin.capacity,bin.type);
+  init = 0;
+
+  printf(">> Initializing Bin!\n[bin_id: %d]\n[bin_capacity: %d]\n[bin_type: (%d)%s]\n",bin.id,bin.capacity,bin.type,type[bin.type]);
 
 // ---------------------------- BIN REGISTRATION ----------------------------
 
@@ -134,11 +144,14 @@ PROCESS_THREAD(startup_process, ev, data)
 
         COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
 
-        printf(">> Registered!\n");
-
-        break;
-
-        //etimer_reset(&et);
+        if(init == 1) {
+          break;
+        }
+        else
+        {
+          printf(">> A new attempt will be performed in 10s!\n");
+          etimer_reset(&et);
+        }
       }
 
   }
@@ -176,9 +189,6 @@ PROCESS_THREAD(btn_process, ev, data)
   printf(">> Bin Active!\n");
 
   btn = button_hal_get_by_index(0); 
-  if(btn) { 
-     printf("%s on pin %u with ID=0, Logic=%s, Pull=%s\n", BUTTON_HAL_GET_DESCRIPTION(btn), btn->pin, btn->negative_logic ? "Negative" : "Positive",btn->pull == GPIO_HAL_PIN_CFG_PULL_UP ? "Pull Up" : "Pull Down");
-  }
 
   while(1) { 
     PROCESS_YIELD();
@@ -189,6 +199,8 @@ PROCESS_THREAD(btn_process, ev, data)
         printf(">> Status update:\n + %d Kg\n Bin status: %d\n",input, bin.status);
         if(bin.status >= bin.capacity) {
           bin.locked = 1;
+          uint8_t led = LEDS_RED;
+          leds_on(led);
           printf(">> Maximum capacity reachead!\n Bin locked!\n");
         }
         res_status.trigger();

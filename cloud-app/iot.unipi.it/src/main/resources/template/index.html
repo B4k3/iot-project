@@ -68,7 +68,7 @@
             <!-- Earnings (Monthly) Card Example -->
             <div class="col-xl-3 col-md-6 mb-4">
               <div class="card shadow h-100 " data-bind="class: 'border-left-'+type()">
-                <h5 class="card-header text-uppercase" data-bind="text:id, class:'text-'+type()"></h5>
+                <h5 class="card-header text-uppercase" data-bind="class:'text-'+type()">Bin-<span data-bind="text:id"></span></h5>
                 <img class="card-img-top"  alt="Card image cap" style="max-width: 100px; height: auto; align-self: center;" data-bind="attr: {src: 'img/'+type()+'.png'}"> 
                 <!-- ko if:locked() == 1 -->
                 <div class="card-img-overlay">
@@ -92,17 +92,17 @@
                       </div>
                       <div class="row no-gutters align-items-center">
                         <div class="col-auto">
-                          <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800"><span data-bind="text:status"></span>%</div>
+                          <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800"><span data-bind="text:percentage"></span>%</div>
                         </div>
                         <div class="col">
                           <div class="progress progress-sm mr-2">
-                            <div class="progress-bar bg-info" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" data-bind="style: {width: ''+status()+'%'}"></div>
+                            <div class="progress-bar bg-info" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" data-bind="style: {width: ''+ percentage() +'%'}"></div>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div class="col-auto">
-                      <i class="fas fa-trash fa-2x " data-bind="css:{'status-full': status() > 99, 'status-normal': status() < 100}"></i>
+                      <i class="fas fa-trash fa-2x " data-bind="css:{'status-full': percentage() > 99, 'status-normal': percentage() < 100}"></i>
                     </div>
                   </div>
                 </div>
@@ -227,8 +227,23 @@
           self.bins.push(t);
         } 
 
+        self.updateBin = function(bin){
+          var upd = ko.utils.arrayFirst(self.bins(), function(item){
+            return item.id() === bin.id;   
+          });
+          if(upd == null) {
+            self.addbin(bin);
+          }
+          else {
+            upd.status(bin.status);
+            upd.locked(bin.locked);
+            upd.percentage(bin.percentage);
+          }
+        }
+
+
         $.getJSON("/bins",function(getdata,status){
-          alert("Data: " + getdata);
+          //alert("Data: " + getdata);
           ko.utils.arrayMap(getdata, function(data) {
             self.addbin(data);
           });
@@ -236,7 +251,13 @@
         
 
         self.updateBins = function(){
-
+          console.log("update");
+          $.getJSON("/bins",function(getdata,status){
+            ko.utils.arrayMap(getdata, function(data) {
+              self.updateBin(data);
+            });
+          });
+        
         }
 
         self.unlockBin = function(bin){
@@ -250,10 +271,11 @@
         self.emptyBin = function(bin){
           bin.status(0);
         }
-              
+        
+        setInterval(self.updateBins, 10000);
       }
-      ko.applyBindings(new myViewModel(initialData));
-
+      var mymodel = new myViewModel(initialData);
+      ko.applyBindings(mymodel);
   </script>
 
 </body>

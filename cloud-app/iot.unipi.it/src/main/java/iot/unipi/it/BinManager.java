@@ -3,6 +3,7 @@ package iot.unipi.it;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -16,7 +17,17 @@ public class BinManager {
 	}
 	
 	public void addBin (byte[] s, InetAddress src) {
-		this.myBins.add(new Bin(s, src));
+		Bin b = new Bin(s, src);
+		String id = b.getBinId();
+		final int[] bin_exist = {0};
+		this.myBins.forEach(c -> {
+			if(Objects.equals(c.getBinId(), id))
+				bin_exist[0] = 1;
+		});
+		if(bin_exist[0] == 0)
+			this.myBins.add(b);
+		else
+			System.out.print("Bin already added!\n");
 	}
 	
 	public void rmBin () {
