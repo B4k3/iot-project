@@ -53,9 +53,10 @@
 #include "bin_config.h"
 
 /*COAP SERVER*/
-extern coap_resource_t res_leds;
-extern coap_resource_t res_action;
-
+extern coap_resource_t res_lock;
+extern coap_resource_t res_unlock;
+extern coap_resource_t res_empty;
+extern coap_resource_t res_status;
 /*GLOBAL STRUCTURES*/
 bin_t bin;
 
@@ -78,34 +79,12 @@ void client_chunk_handler(coap_message_t *response)
 //PROCESS(hello_world_process, "Hello world process");
 PROCESS(startup_process, "Startup process");
 PROCESS(server_process, "server process");
-//server status process
-//server locked
+PROCESS(btn_process, "button process");
 //button process
-//btn process
 
 AUTOSTART_PROCESSES(&startup_process);
 
 static struct etimer et;
-/*---------------------------------------------------------------------------*/
-/*PROCESS_THREAD(hello_world_process, ev, data)
-{
-  static struct etimer timer;
-
-  PROCESS_BEGIN();
-
- 
-  etimer_set(&timer, CLOCK_SECOND * 10);
-
-  while(1) {
-    printf("Hello, world\n");
-
-   
-    PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
-    etimer_reset(&timer);
-  }
-
-  PROCESS_END();
-}*/
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(startup_process, ev, data)
 {
@@ -115,7 +94,7 @@ PROCESS_THREAD(startup_process, ev, data)
 
   static coap_message_t request[1];
 
-  static char msg[40];
+  static char msg[50];
 
 // ---------------------------- BIN INITIALIZATION ----------------------------
   
@@ -125,13 +104,15 @@ PROCESS_THREAD(startup_process, ev, data)
   bin.locked = 0;
   bin.status = 0;
 
-  printf("Initializing Bin!\nbin_id:%d\nbin_capacity:%d\nbin_type:%d\n",bin.id,bin.capacity,bin.type);
+  printf(">> Initializing Bin!\n[bin_id: %d]\n[bin_capacity: %d]\n[bin_type: %d]\n",bin.id,bin.capacity,bin.type);
 
 // ---------------------------- BIN REGISTRATION ----------------------------
 
   /* Register Bin to the cloud application */
 
   coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
+
+  process_start(&server_process, NULL);
 
   etimer_set(&et, TOGGLE_INTERVAL * CLOCK_SECOND);
 
@@ -143,12 +124,12 @@ PROCESS_THREAD(startup_process, ev, data)
 
         coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
         coap_set_header_uri_path(request, service_urls[0]);
+        coap_set_header_content_format(request, APPLICATION_JSON);
 
-        //const char msg[] = "Bin1!";
-        sprintf(msg,"{\"id\":%d,\"type\":%d,\"capacity\":%d}", bin.id, bin.type, bin.capacity);
-
-        coap_set_payload(request, (uint8_t *)msg, sizeof(msg) - 1);
+        snprintf(msg, COAP_MAX_CHUNK_SIZE, "{\"id\":%d,\"type\":%d,\"capacity\":%d}", bin.id, bin.type, bin.capacity);
         
+        coap_set_payload(request, (uint8_t *)msg, strlen(msg));
+
         printf(">> Sending registration request!\n");
 
         COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
@@ -162,7 +143,7 @@ PROCESS_THREAD(startup_process, ev, data)
 
   }
 
-  process_start(&server_process, NULL);
+  process_start(&btn_process, NULL);
 
   PROCESS_END();
 }
@@ -173,14 +154,50 @@ PROCESS_THREAD(server_process, ev, data)
 
   PROCESS_PAUSE();
 
-  printf("Starting Erbium Example Server\n");
+  printf(">> Starting Erbium Server\n");
 
-  coap_activate_resource(&res_leds, "locked");
-  coap_activate_resource(&res_action, "action");
+  coap_activate_resource(&res_lock, "lock");
+  coap_activate_resource(&res_unlock, "unlock");
+  coap_activate_resource(&res_empty, "action");
+  coap_activate_resource(&res_status, "status");
 
   while(1) {
     PROCESS_WAIT_EVENT();
 
   }
+  PROCESS_END();
+}
+
+PROCESS_THREAD(btn_process, ev, data)
+{
+  button_hal_button_t *btn;
+  int input;
+  PROCESS_BEGIN();
+  printf(">> Bin Active!\n");
+
+  btn = button_hal_get_by_index(0); 
+  if(btn) { 
+     printf("%s on pin %u with ID=0, Logic=%s, Pull=%s\n", BUTTON_HAL_GET_DESCRIPTION(btn), btn->pin, btn->negative_logic ? "Negative" : "Positive",btn->pull == GPIO_HAL_PIN_CFG_PULL_UP ? "Pull Up" : "Pull Down");
+  }
+
+  while(1) { 
+    PROCESS_YIELD();
+    if(ev == button_hal_press_event) {
+      if(bin.locked != 1){
+        input = rand() % MAXIMUM_IN;
+        bin.status += input;
+        printf(">> Status update:\n + %d Kg\n Bin status: %d\n",input, bin.status);
+        if(bin.status >= bin.capacity) {
+          bin.locked = 1;
+          printf(">> Maximum capacity reachead!\n Bin locked!\n");
+        }
+        res_status.trigger();
+      }
+      else {
+          printf(">> Bin locked! \n");
+      }
+    }
+  }
+
   PROCESS_END();
 }

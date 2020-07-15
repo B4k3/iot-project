@@ -1,5 +1,6 @@
 package iot.unipi.it;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +15,8 @@ public class BinManager {
 		myBins = new ArrayList<Bin>();
 	}
 	
-	public void addBin (String BinName) {
-		this.myBins.add(new Bin(BinName));
+	public void addBin (byte[] s, InetAddress src) {
+		this.myBins.add(new Bin(s, src));
 	}
 	
 	public void rmBin () {

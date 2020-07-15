@@ -4,6 +4,7 @@
 
 
 const int standard_capacity[4] = {50,100,150,200};
+#define MAXIMUM_IN 25;
 
 
 

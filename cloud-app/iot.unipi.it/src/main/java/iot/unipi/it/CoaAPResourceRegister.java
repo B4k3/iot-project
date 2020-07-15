@@ -1,5 +1,8 @@
 package iot.unipi.it;
 
+import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
@@ -16,18 +19,24 @@ public class CoaAPResourceRegister extends CoapResource {
 		this.myBins = binmng;
 	}
 	
-	public void handleGET(CoapExchange exchange) {
+	/*public void handleGET(CoapExchange exchange) {
 		exchange.respond("hello world");
-	}
+	}*/
 	
 	public void handlePOST(CoapExchange exchange) {
 		//create resource
 		//Response response = new Response(ResponseCode.CONTENT);
+		String s;
 		byte[] request = exchange.getRequestPayload();
-		String s = new String(request);
-		System.out.print(s);
-		
-		//this.myBins.addBin(s);
+		/*try {
+			s = new String(request, "UTF-8");
+		}
+		catch(UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return;
+		}*/
+		InetAddress addr =  exchange.getSourceAddress();
+		this.myBins.addBin(request, addr);
 		exchange.respond("Registered!");
 	}
 
