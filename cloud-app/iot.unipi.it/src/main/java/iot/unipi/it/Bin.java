@@ -53,7 +53,6 @@ public class Bin {
 				else
 					this.bin.percentage = tmp;
 					
-				System.out.println("bin:"+ this.bin.id +" percentage-update:" + Integer.toString(tmp));
 			}
 			@Override public void onError() {
 				System.err.println("-Failed--------"); 
@@ -96,8 +95,8 @@ public class Bin {
 		System.out.print("Bin "+this.id+" added!\n addr:" + src.getHostAddress().toString() +"\n");
 	}
 	
-	public void empty () {
-		CoapClient empty = new CoapClient("coap://["+ this.addr.getHostAddress().toString() +"]/lock");
+	public int empty () {
+		CoapClient empty = new CoapClient("coap://["+ this.addr.getHostAddress().toString() +"]/empty");
 		CoapResponse res = empty.post("", MediaTypeRegistry.APPLICATION_JSON);
 		
 		JSONObject response;
@@ -107,15 +106,18 @@ public class Bin {
 		}
 		catch (ParseException e) {
 			e.printStackTrace();
-			return;
+			return 0;
 		}
 		
-		System.out.print("3d!\n");
 		if(response.get("result").toString().equals("OK")) {
 			this.status = 0;
 			this.percentage = 0;
-			System.out.print("4!\n");
+			return 1;
 		}
+		else {
+			return 0;
+		}
+		
 	}
 	
 	public void lock () {

@@ -37,22 +37,16 @@
           </div>
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
-            <div class="topbar-divider d-none d-sm-block"></div>
 
             <!-- Nav Item - User Information -->
-            <!--<li class="nav-item dropdown no-arrow">
-              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="mr-2 d-none d-lg-inline text-gray-600 small">$userid</span>
-                <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
-              </a>-->
-              <!-- Dropdown - User Information -->
-              <!--<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                  <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Logout
-                </a>
-              </div>
-            </li>-->
+            <li class="nav-item dropdown no-arrow">
+              <a class="btn btn-icon-split btn-info" data-bind="click:$root.updateBins">
+                <span class="icon text-white-50">
+                  <i class="fas fa-undo"></i>
+                </span>
+                <span class="text">Refresh</span>
+              </a>
+            </li>
 
           </ul>
 
@@ -61,11 +55,20 @@
         <div class="container-fluid">
 
           <!-- Page Heading -->
-          
+          <!-- ko if: bins().length == 0 -->
+          <div class="row" style="display: flex; justify-content: center; align-items: center;">
+            <div class="card border-danger mb-3" style="max-width: 20rem;">
+              <div class="card-body">
+                <h5 class="card-title" style="text-align: center;">No Bin registered!</h5>
+                <p class="card-text" style="text-align: center;">Bins will be automatically added upon registering!</p>
+              </div>
+            </div>
+          </div>
+          <!-- /ko -->
+
           
           <!-- Content Row -->
           <div class="row" data-bind="foreach:bins">
-            <!-- Earnings (Monthly) Card Example -->
             <div class="col-xl-3 col-md-6 mb-4">
               <div class="card shadow h-100 " data-bind="class: 'border-left-'+type()">
                 <h5 class="card-header text-uppercase" data-bind="class:'text-'+type()">Bin-<span data-bind="text:id"></span></h5>
@@ -186,21 +189,7 @@
   <!-- knockout js -->
   <script type='text/javascript' src="js/knockout-3.5.1.js"></script>
   <script type='text/javascript'>
-      var initialData = [
-          { id: "Giallo", type: "paper",   capacity: 120, percentage: 50, status: 50, locked: 1},
-          { id: "Verde",  type: "plastic", capacity: 120, percentage: 20, status: 20, locked: 0},
-          { id: "Rosso",  type: "glass",   capacity: 120, percentage: 100,status: 100, locked: 0},
-          { id: "Blu",    type: "organic", capacity: 120, percentage: 90, status: 90, locked: 1},
-          { id: "Giallo1",type: "paper",   capacity: 120, percentage: 50, status: 50, locked: 1},
-          { id: "Verde1", type: "plastic", capacity: 120, percentage: 20, status: 20, locked: 0},
-          { id: "Rosso1", type: "glass",   capacity: 120, percentage: 75, status: 75, locked: 0},
-          { id: "Blu1",   type: "organic", capacity: 120, percentage: 90, status: 90, locked: 1},
-          { id: "Giallo2",type: "paper",   capacity: 120, percentage: 100,status: 100, locked: 0},
-          { id: "Verde2", type: "plastic", capacity: 120, percentage: 20, status: 20, locked: 0},
-          { id: "Rosso2", type: "glass",   capacity: 120, percentage: 100,status: 100, locked: 1},
-          { id: "Blu2",   type: "organic", capacity: 120, percentage: 9,  status: 9,  locked: 0}
-      ];
-
+      
       function Bin(){
         this.type = ko.observable();
         this.id = ko.observable();
@@ -243,12 +232,10 @@
 
 
         $.getJSON("/bins",function(getdata,status){
-          //alert("Data: " + getdata);
           ko.utils.arrayMap(getdata, function(data) {
             self.addbin(data);
           });
         });
-        
 
         self.updateBins = function(){
           console.log("update");
@@ -267,7 +254,7 @@
             data: JSON.stringify({id:bin.id()}),
             success: function(data) { 
               console.log('data: ' + data);
-              if(data.success == "ok")
+              if(data.result == "ok")
                     bin.locked(0); 
             },
             contentType: "application/json",
@@ -282,7 +269,7 @@
             data: JSON.stringify({id:bin.id()}),
             success: function(data) { 
               console.log('data: ' + data);
-              if(data.success == "ok")
+              if(data.result == "ok")
                     bin.locked(1); 
             },
             contentType: "application/json",
@@ -297,8 +284,9 @@
             data: JSON.stringify({id:bin.id()}),
             success: function(data) { 
               console.log('data: ' + data);
-              if(data.success == "ok")
-                    bin.status(0); 
+              if(data.result == "ok")
+                    bin.status(0);
+                    bin.percentage(0); 
             },
             contentType: "application/json",
             dataType: 'json'
@@ -307,7 +295,7 @@
         
         setInterval(self.updateBins, 10000);
       }
-      var mymodel = new myViewModel(initialData);
+      var mymodel = new myViewModel();
       ko.applyBindings(mymodel);
   </script>
 

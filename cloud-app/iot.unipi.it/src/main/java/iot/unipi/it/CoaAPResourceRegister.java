@@ -19,22 +19,9 @@ public class CoaAPResourceRegister extends CoapResource {
 		this.myBins = binmng;
 	}
 	
-	/*public void handleGET(CoapExchange exchange) {
-		exchange.respond("hello world");
-	}*/
-	
 	public void handlePOST(CoapExchange exchange) {
 		//create resource
-		//Response response = new Response(ResponseCode.CONTENT);
-		String s;
 		byte[] request = exchange.getRequestPayload();
-		/*try {
-			s = new String(request, "UTF-8");
-		}
-		catch(UnsupportedEncodingException e) {
-			e.printStackTrace();
-			return;
-		}*/
 		InetAddress addr =  exchange.getSourceAddress();
 		this.myBins.addBin(request, addr);
 		exchange.respond("Registered!");

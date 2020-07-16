@@ -30,12 +30,14 @@ public class BinManager {
 			System.out.print("Bin already added!\n");
 	}
 	
-	public void emptyBin (int id) {
+	public int emptyBin (int id) {
+		final int[] res = {0};
 		this.myBins.forEach(c -> {
 			if(Objects.equals(c.getBinId(), Integer.toString(id))) {
-				c.empty();
+				res[0] = c.empty();
 			}
 		});
+		return res[0];
 	}
 	
 	public void lockBin (int id) {

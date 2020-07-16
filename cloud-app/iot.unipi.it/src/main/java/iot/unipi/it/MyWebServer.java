@@ -25,18 +25,9 @@ public class MyWebServer {
 	
 	public void start() {
 		port(8080);
-		//staticFiles.location("/public");
 		staticFiles.location("/template");
-		get("/login", (req, res) -> this.MyBins.getBinJsonStatus());
-		
-		post("/login", (req, res) -> this.MyBins.getBinJsonStatus());
 		
 		get("/bins", (req, res) -> this.MyBins.getBinJsonStatus());
-		
-		get("/binmanager", (req, res) -> {
-			Map<String, Object> model = new HashMap<>();
-			return new ModelAndView(model, "index.html");
-		}, new VelocityTemplateEngine());
 		
 		get("/updatebins", (req, res) -> this.MyBins.getBinJsonStatus());
 		
@@ -51,9 +42,12 @@ public class MyWebServer {
 				request.put("result","ko");
 				return request;
 			}
-			this.MyBins.emptyBin(Integer.parseInt(request.get("id").toString()));
+			int ret = this.MyBins.emptyBin(Integer.parseInt(request.get("id").toString()));
 			System.out.print("Empty bin id"+request.get("id").toString()+"\n");
-			request.put("result", "ok");
+			if(ret == 1)
+				request.put("result", "ok");
+			else
+				request.put("result", "ko");
 			return request.toString();
 		});
 		
@@ -91,6 +85,8 @@ public class MyWebServer {
 			request.put("result", "ok");
 			return request.toString();
 		});
+		System.out.print("Webserver started on address http://127.0.0.1:8080 \n");
+
 	}
 
 }
